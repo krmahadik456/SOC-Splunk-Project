@@ -2,6 +2,8 @@
 
 > A hands-on SOC analyst project demonstrating real-world threat detection, log analysis, and incident response using Splunk Enterprise and the BOTS v3 dataset.
 
+---
+
 ## 📌 Project Overview
 
 This project simulates a real security operations center (SOC) investigation. I acted as a Tier 1 SOC analyst, analyzing enterprise attack logs to detect, investigate, and document a complete cyber attack chain.
@@ -14,6 +16,8 @@ A fictional company called Frothly Inc. experienced a security breach. Using Spl
 
 **Apache Struts2 Remote Code Execution (CVE-2018-11776)** — the same vulnerability exploited in the Equifax data breach.
 
+---
+
 ## 🛠️ Tools & Environment
 
 | Tool | Purpose |
@@ -22,6 +26,8 @@ A fictional company called Frothly Inc. experienced a security breach. Using Spl
 | BOTS v3 Dataset | Realistic enterprise attack data |
 | SPL | Splunk's search language for queries |
 | MITRE ATT&CK | Framework for mapping attacker techniques |
+
+---
 
 ## 📊 Investigation Steps
 
@@ -33,7 +39,11 @@ First, I explored the dataset to understand what types of logs were available:
 index=botsv3 earliest=0 | stats count by sourcetype | sort -count
 ```
 
-📸 **Screenshot:** `screenshots/01_sourcetypes.png`
+**📸 Screenshot:**
+
+![Log Inventory](screenshots/01_sourcetypes.png)
+
+---
 
 ### 2. Identifying Suspicious Activity
 
@@ -48,7 +58,11 @@ index=botsv3 earliest=0 sourcetype="stream:http" http_method=POST
 
 **Key Discovery:** An IP address (`192.168.8.103`) was repeatedly accessing a suspicious URL (`/frothlyinventory/integration/saveGangster.action`).
 
-📸 **Screenshot:** `screenshots/02_suspicious_post_urls.png`
+**📸 Screenshot:**
+
+![Suspicious POST URLs](screenshots/02_suspicious_post_urls.png)
+
+---
 
 ### 3. Confirming the Attack
 
@@ -60,7 +74,11 @@ index=botsv3 earliest=0 sourcetype="stream:http" uri_path="/frothlyinventory/int
 | sort _time
 ```
 
-📸 **Screenshot:** `screenshots/03_attacker_confirmed.png`
+**📸 Screenshot:**
+
+![Attacker Confirmed](screenshots/03_attacker_confirmed.png)
+
+---
 
 ### 4. Extracting Attacker Commands
 
@@ -74,7 +92,11 @@ index=botsv3 earliest=0 sourcetype="stream:http" src_ip="192.168.8.103" http_met
 | sort _time
 ```
 
-📸 **Screenshot:** `screenshots/04_attack_commands.png`
+**📸 Screenshot:**
+
+![Attack Commands](screenshots/04_attack_commands.png)
+
+---
 
 ### 5. Persistence Detection
 
@@ -87,7 +109,11 @@ index=botsv3 earliest=0 sourcetype="stream:http" src_ip="192.168.8.103" http_met
 | table _time, command
 ```
 
-📸 **Screenshot:** `screenshots/05_backdoor_account.png`
+**📸 Screenshot:**
+
+![Backdoor Account](screenshots/05_backdoor_account.png)
+
+---
 
 ### 6. Privilege Escalation Attempt
 
@@ -100,7 +126,11 @@ index=botsv3 earliest=0 sourcetype="stream:http" src_ip="192.168.8.103" http_met
 | table _time, command
 ```
 
-📸 **Screenshot:** `screenshots/06_kernel_exploit.png`
+**📸 Screenshot:**
+
+![Kernel Exploit](screenshots/06_kernel_exploit.png)
+
+---
 
 ### 7. Command & Control (C2) Discovery
 
@@ -115,7 +145,29 @@ index=botsv3 earliest=0 sourcetype="stream:http" src_ip="192.168.8.103" http_met
 | sort _time
 ```
 
-📸 **Screenshot:** `screenshots/07_c2_reverse_shell.png`
+**📸 Screenshot:**
+
+![C2 Reverse Shell](screenshots/07_c2_reverse_shell.png)
+
+---
+
+### 8. SOC Dashboard
+
+I built a real-time SOC dashboard in Splunk with 5 panels:
+
+| Panel | Type | Purpose |
+|-------|------|---------|
+| Attack Activity Timeline | Line Chart | Visualize attack patterns |
+| Top Attackers | Bar Chart | Identify suspicious IPs |
+| Command Usage | Bar Chart | See what commands were used |
+| C2 Connections | Table | Monitor reverse shell attempts |
+| Traffic Distribution | Pie Chart | Analyze HTTP method usage |
+
+**📸 Screenshot:**
+
+![Full Dashboard](screenshots/08_full_dashboard.png)
+
+---
 
 ## 📅 Attack Timeline
 
@@ -131,6 +183,8 @@ index=botsv3 earliest=0 sourcetype="stream:http" src_ip="192.168.8.103" http_met
 | 16:43 | C2 connection to 45.77.53.176:8088 |
 | 17:04 | Second C2 connection attempt |
 
+---
+
 ## 🏛️ MITRE ATT&CK Framework Mapping
 
 | Tactic | Technique | ID |
@@ -143,19 +197,7 @@ index=botsv3 earliest=0 sourcetype="stream:http" src_ip="192.168.8.103" http_met
 | Privilege Escalation | Exploitation for Privilege Escalation | T1068 |
 | Command & Control | Application Layer Protocol | T1071 |
 
-## 🖥️ SOC Dashboard
-
-I built a dashboard in Splunk with 5 panels:
-
-| Panel | Type | Purpose |
-|-------|------|---------|
-| Attack Activity Timeline | Line Chart | Visualize attack patterns |
-| Top Attackers | Bar Chart | Identify suspicious IPs |
-| Command Usage | Bar Chart | See what commands were used |
-| C2 Connections | Table | Monitor reverse shell attempts |
-| Traffic Distribution | Pie Chart | Analyze HTTP method usage |
-
-📸 **Screenshot:** `screenshots/08_full_dashboard.png`
+---
 
 ## 🔑 Key Findings
 
@@ -167,20 +209,33 @@ I built a dashboard in Splunk with 5 panels:
 | Backdoor Account | tomcat7 |
 | Exploit File | colonel.c |
 
+---
+
 ## 🛡️ Recommendations
 
-1. **Block** the C2 server IP address immediately
-2. **Remove** the backdoor user account
-3. **Patch** the Apache Struts2 vulnerability
-4. **Implement** a Web Application Firewall
+### Immediate Actions
+1. **Block** the C2 server IP address (45.77.53.176) at the firewall
+2. **Remove** the backdoor user account (tomcat7)
+3. **Patch** the Apache Struts2 vulnerability (CVE-2018-11776)
+
+### Short-Term Actions
+4. **Implement** a Web Application Firewall (WAF)
 5. **Monitor** all outbound network connections
+6. **Enable** comprehensive logging on all critical systems
+
+### Long-Term Actions
+7. **Conduct** regular vulnerability assessments
+8. **Implement** network segmentation
+9. **Provide** security awareness training for employees
+
+---
 
 ## 📁 Repository Structure
 
 ```
 SOC-Splunk-Project/
-├── README.md
-├── screenshots/
+├── README.md                          ← You are here
+├── screenshots/                       ← All investigation screenshots
 │   ├── 01_sourcetypes.png
 │   ├── 02_suspicious_post_urls.png
 │   ├── 03_attacker_confirmed.png
@@ -189,20 +244,26 @@ SOC-Splunk-Project/
 │   ├── 06_kernel_exploit.png
 │   ├── 07_c2_reverse_shell.png
 │   └── 08_full_dashboard.png
-├── detections/
+├── detections/                        ← SPL detection rules
 │   ├── 01_suspicious_post_urls.spl
 │   ├── 02_attacker_confirmed.spl
 │   ├── 03_attack_commands.spl
 │   ├── 04_c2_reverse_shell.spl
 │   └── 05_backdoor_account.spl
 └── reports/
-    └── Incident_Report_Frothly_APT.md
+    └── Incident_Report_Frothly_APT.md ← Full incident report
 ```
+
+---
 
 ## 👤 About Me
 
 **Kaustubh Rohidas Mahadik**
 Aspiring SOC Analyst | Cybersecurity Enthusiast
+
+> *"This project demonstrates real hands-on SOC analyst skills — log analysis, threat hunting, attack investigation, MITRE ATT&CK mapping, dashboard creation, and incident reporting using industry standard tools."*
+
+---
 
 ## 📎 References
 
